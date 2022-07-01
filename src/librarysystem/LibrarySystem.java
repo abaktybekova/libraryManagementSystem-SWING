@@ -3,8 +3,12 @@ package librarysystem;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.*;
 
@@ -31,6 +35,8 @@ public class LibrarySystem extends JFrame implements LibWindow {
 	JSplitPane splitPane;
 	JList leftList;
 	JPanel cardLayout;
+	JTabbedPane tabbedPane;
+
 
 	private static LibWindow[] allWindows = {
 			LibrarySystem.INSTANCE,
@@ -38,9 +44,12 @@ public class LibrarySystem extends JFrame implements LibWindow {
 			AllMemberIdsWindow.INSTANCE,
 			AllBookIdsWindow.INSTANCE
 	};
+	private static Class[] librarianPages = {CheckoutBookWindow.class, AllBookIdsWindow.class, CheckoutMemberRecordWindow.class};
+	private static Class[] adminPages = {AddNewMemberWindow.class, AddBookWindow.class, AllBookIdsWindow.class, AddBookCopyWindow.class};
 
-	private static Class[] librarianPages = {AllBookIdsWindow.class};
-	private static Class[] adminPages = {AllMemberIdsWindow.class};
+
+//	private static Class[] librarianPages = {AllBookIdsWindow.class};
+//	private static Class[] adminPages = {AllMemberIdsWindow.class};
 
 	public static void hideAllWindows() {
 
@@ -55,6 +64,7 @@ public class LibrarySystem extends JFrame implements LibWindow {
 	public void init() {
 		formatContentPane();
 		setPathToImage();
+		updateTabs();
 		insertSplashImage();
 
 		createMenus();
@@ -116,9 +126,77 @@ public class LibrarySystem extends JFrame implements LibWindow {
 
 	private void setPathToImage() {
 		String currDirectory = System.getProperty("user.dir");
-		pathToImage = currDirectory+"\\src\\librarysystem\\library.jpg";
+		pathToImage = currDirectory+"/src/librarysystem/library.jpg";
 	}
 
+	private void updateTabs() {
+		if(tabbedPane == null){
+			tabbedPane = new JTabbedPane();
+		}
+
+		tabbedPane.removeAll();
+
+		List<Class> authList = new ArrayList<>();
+		List<String> tabTitles = new ArrayList<>();
+		if(ci.getRole() != null) {
+			if (ci.getRole() == Auth.LIBRARIAN) {
+				authList.addAll(Arrays.stream(librarianPages).collect(Collectors.toList()));
+			}else if (ci.getRole() == Auth.ADMIN) {
+				authList.addAll(Arrays.stream(adminPages).collect(Collectors.toList()));
+			}else if (ci.getRole() == Auth.BOTH) {
+				authList.addAll(Arrays.stream(librarianPages).collect(Collectors.toList()));
+				authList.addAll(Arrays.stream(adminPages).collect(Collectors.toList()));
+			}
+		}
+
+		if(authList.contains(AllMemberIdsWindow.class)){
+			tabbedPane.addTab("All Members", AllMemberIdsWindow.getInstance().getMainPanel());
+			tabTitles.add("All Members");
+		}
+		if(authList.contains(AllBookIdsWindow.class)){
+			tabbedPane.addTab("All Books", AllBookIdsWindow.getInstance().getMainPanel());
+			tabTitles.add("All Books");
+		}
+		if(authList.contains(AddBookWindow.class)){
+			AddBookWindow addBook = new AddBookWindow();
+			JPanel addBookPanel = addBook.getMainPanel();
+			tabbedPane.addTab("Add Book", addBookPanel);
+		}
+		if(authList.contains(AddBookCopyWindow.class)){
+			AddBookCopyWindow addBookCopy = new AddBookCopyWindow();
+			JPanel addBookCopyPanel = addBookCopy.getMainPanel();
+			tabbedPane.addTab("Add Book Copy", addBookCopyPanel);
+		}
+		if(authList.contains(AddNewMemberWindow.class)){
+			AddNewMemberWindow newMemberPanel = new AddNewMemberWindow();
+			JPanel newMember = newMemberPanel.getMainPanel();
+			tabbedPane.addTab("Add New Member", newMember);
+		}
+		if(authList.contains(CheckoutBookWindow.class)){
+			CheckoutBookWindow checkoutBookPanel = new CheckoutBookWindow();
+			JPanel myCheckoutBook = checkoutBookPanel.getMainPanel();
+			tabbedPane.addTab("Checkout Book", myCheckoutBook);
+		}
+		if(authList.contains(CheckoutMemberRecordWindow.class)){
+			CheckoutMemberRecordWindow checkoutRecordPanel = new CheckoutMemberRecordWindow();
+			JPanel myCheckoutRecord = checkoutRecordPanel.getMainPanel();
+			tabbedPane.addTab("Checkout Record", myCheckoutRecord);
+		}
+		if(tabbedPane.getTabCount() > 0){
+			tabbedPane.setSelectedIndex(0);
+		}
+		
+			mainPanel.add(tabbedPane);
+			tabbedPane.addChangeListener(l -> {
+				int indexSelected = tabbedPane.getSelectedIndex();
+				if(indexSelected >= 0 && indexSelected < tabbedPane.getTabCount()) {
+					if (tabbedPane.getTitleAt(indexSelected).equals("All Books")) {
+						AllBookIdsWindow.getInstance().listBookIDS();
+					}
+				}
+			});
+		
+	}
 	private void insertSplashImage() {
 		ImageIcon image = new ImageIcon(pathToImage);
 		mainPanel.add(new JLabel(image));
@@ -224,6 +302,7 @@ public class LibrarySystem extends JFrame implements LibWindow {
 
 	@Override
 	public void setVisible(boolean b) {
+		updateTabs();
 		this.createLeftSplitPane();
 		super.setVisible(b);
 	}

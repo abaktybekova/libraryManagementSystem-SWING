@@ -55,16 +55,6 @@ public class AllBookIdsWindow extends JFrame implements LibWindow {
 		listBookIDS();
 		isInitialized = true;
 	}
-
-	public void listBookIDS() {
-		List<String> ids = ci.allBookIds();
-		Collections.sort(ids);
-		StringBuilder sb = new StringBuilder();
-		for(String s: ids) {
-			sb.append(s).append("\n");
-		}
-		setData(sb.toString());
-	}
 	
 	public void defineTopPanel() {
 		topPanel = new JPanel();
@@ -104,6 +94,16 @@ public class AllBookIdsWindow extends JFrame implements LibWindow {
 	
 	public void setData(String data) {
 		textArea.setText(data);
+	}
+	
+	public void listBookIDS() {
+		List<String> ids = ci.allBookIds();
+		Collections.sort(ids);
+		StringBuilder sb = new StringBuilder();
+		for(String s: ids) {
+			sb.append(s).append("\n");
+		}
+		setData(sb.toString());
 	}
 	
 //	private void populateTextArea() {

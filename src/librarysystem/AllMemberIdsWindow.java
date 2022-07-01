@@ -29,6 +29,11 @@ public class AllMemberIdsWindow extends JFrame implements LibWindow {
 	
 	private AllMemberIdsWindow() {}
 	
+	public static AllMemberIdsWindow getInstance(){
+		INSTANCE.init();
+		return INSTANCE;
+	}
+	
 	public void init() {
 		mainPanel = new JPanel();
 		mainPanel.setLayout(new BorderLayout());

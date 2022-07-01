@@ -24,8 +24,7 @@ public class AddBookWindow extends JFrame{
     private JTextField authPhoneNumberField;
 
     private final ControllerInterface ci = new SystemController();
-
-    public void clearData() {
+   public void clearData() {
         authPhoneNumberField.setText("");
         authFirstNameField.setText("");
         authLastNameField.setText("");
